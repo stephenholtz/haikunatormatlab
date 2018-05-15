@@ -6,6 +6,7 @@ Generate memorable names for instances, files, experiments etc. in MATLAB. This 
 Simply add this repository to your MATLAB path using the IDE `Home>Set Path`. There is no need to include subfolders. Alternatively use the `addpath` function.
 
 ## TODO
+- Clean up comments and docstrings
 - Add examples
 
 ## Usage
