@@ -5,10 +5,6 @@ Generate memorable names for instances, files, experiments etc. in MATLAB. This 
 ## Installation
 Simply add this repository to your MATLAB path using the IDE `Home>Set Path`. There is no need to include subfolders. Alternatively use the `addpath` function.
 
-## TODO
-- Clean up comments and docstrings
-- Add examples
-
 ## Usage
 There is only one Class `Haikunator` with one method `haikunate`. 
 
@@ -20,6 +16,14 @@ h = Haikunator()
 h = Haikunator('seed',32)
 
 % Standard useage
-h.haikunate(); %  = 'green-frog-3716'
+h.haikunate(); % = 'still-sun-8919'
 
+% Use underscores as delimiter
+h.haikunate('delimiter','_'); % = 'orange_morning_5786'
+
+% Use hex token
+h.haikunate('token_hex',true); % = 'lively-hill-6b04'
+
+% Change token_chars
+h.haikunate('token_chars','HAIKUNATOR'); % 'lucky-king-UHNU'
 ```

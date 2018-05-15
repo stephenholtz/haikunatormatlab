@@ -1,5 +1,7 @@
 classdef Haikunator < handle
     % Haikunator Class for generating random haiku-like names
+    %
+    % Stephen Holtz 2018
     properties (Access = private)
         seed
         adjectives
@@ -33,22 +35,28 @@ classdef Haikunator < handle
             'violet', 'voice', 'water', 'waterfall', 'wave', 'wildflower', 'wind', 'wood'}
         delimiter_ = '-';
         token_chars_ = '0123456789';
+        token_length_ = 4;
     end
     
     methods
         function obj = Haikunator(varargin)
-            % Optional Inputs:
+            % h = Haikunator()
+            % 
+            % All inputs are optional. Calling Haikunator() is equivalent 
+            % to Haikunator('seed',randseed()).
+            %
+            % Optional Inputs
+            % ---------------
             % seed       : nonnegative integer, if not entered, defaults to a
             %              random seed from randseed(), prime numbers \in [31,2^17-1]
             % adjectives : cell array of adjectives (also accepts a single string)
             % nouns      : cell array of nouns (also accepts a single string)
             %
-            % Examples:
+            % Examples
+            % --------
             % h = Haikunator('seed',313)
             % h = Haikunator('adjectives',{'frank','jocular','frazzled'})
             % h = Haikunator('nouns',{'plumbus','olifant'})
-            % ...
-            %
             
             % Parse inputs
             ip = inputParser();
@@ -89,12 +97,39 @@ classdef Haikunator < handle
         end
         
         function name = haikunate(obj,varargin)
-            % Optional Inputs:
-            % delimiter: Delimiter string
-            % token_length: TokenLength integer
-            % token_hex: TokenHex boolean
-            % token_chars: TokenChars string
+            % name = haikunate('delimiter','-','token_length',4,'token_chars','0123456789','token_hex',false)
+            % 
+            % All inputs are optional, and use the seed passed (implicitly or explicitly) to 
+            % the Haikunator constructor for randomization.
             %
+            % Optional Inputs
+            % ---------------
+            % delimiter    : string to delimit the adjective noun and token
+            %                defaults to '-'.
+            % token_length : integer to specify the length of the token, 
+            %                defaults to 4.
+            % token_hex    : boolean, if true sets token_chars to 
+            %                hexidecimal values '0123456789abcdef', will
+            %                override anything passed to token_chars.
+            %                Defaults to false.
+            % token_chars  : string to serve as pool for token, defaults to
+            %                '0123456789'.
+            %
+            % Examples (with different seeds)
+            % -------------------------------
+            % h = Haikunator();
+            %
+            % % Standard useage
+            % h.haikunate(); % = 'still-sun-8919'
+            %
+            % % Use underscores as delimiter
+            % h.haikunate('delimiter','_'); % = 'orange_morning_5786'
+            % 
+            % % Use hex token
+            % h.haikunate('token_hex',true); % = 'lively-hill-6b04'
+            %
+            % % Change token_chars
+            % h.haikunate('token_chars','HAIKUNATOR'); % 'lucky-king-UHNU'
             
             % Parse inputs
             ip = inputParser();
@@ -113,7 +148,7 @@ classdef Haikunator < handle
             end
             
             if isempty(ip.Results.token_length)
-                token_length = 4;
+                token_length = obj.token_length_;
             else
                 token_length = ip.Results.token_length;
             end
