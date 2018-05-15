@@ -27,3 +27,17 @@ h.haikunate('token_hex',true); % = 'lively-hill-6b04'
 % Change token_chars
 h.haikunate('token_chars','HAIKUNATOR'); % 'lucky-king-UHNU'
 ```
+
+## Other Languages
+
+Haikunator is also available in other languages. Check them out:
+
+- Python: https://github.com/Atrox/haikunatorpy
+- Node: https://github.com/Atrox/haikunatorjs
+- .NET: https://github.com/Atrox/haikunator.net
+- PHP: https://github.com/Atrox/haikunatorphp
+- Java: https://github.com/Atrox/haikunatorjava
+- Go: https://github.com/Atrox/haikunatorgo
+- Dart: https://github.com/Atrox/haikunatordart
+- Ruby: https://github.com/usmanbashir/haikunator
+- Rust: https://github.com/nishanths/rust-haikunator
