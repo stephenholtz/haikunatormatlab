@@ -68,7 +68,7 @@ classdef Haikunator < handle
             
             % Set hidden properties
             if isempty(ip.Results.seed)
-                obj.seed = randseed();
+                obj.seed = rng('shuffle');
             else
                 obj.seed = ip.Results.seed;
             end
