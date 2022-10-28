@@ -165,7 +165,7 @@ classdef Haikunator < handle
             end
         end
     end
-    
+
     methods (Access = private)
         function elements = getRandom(obj,lst,n_elements)
             % Return a random element or random set, with replacement. Also
