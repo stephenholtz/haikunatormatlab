@@ -1,7 +1,7 @@
 classdef Haikunator < handle
     % Haikunator Class for generating random haiku-like names
     %
-    % Stephen Holtz 2018
+    % Stephen Holtz
     properties (Access = private)
         seed
         adjectives
@@ -9,7 +9,7 @@ classdef Haikunator < handle
 
         min_ver = '9.2' % matlab 2017a
     end
-    
+
     properties (Access = private, Constant = true)
         % Default values stored here
         adjectives_ = {'aged', 'ancient', 'autumn', 'billowing', 'bitter', 'black', 'blue', ...
@@ -88,7 +88,7 @@ classdef Haikunator < handle
                     obj.adjectives = options.adjectives;
                 end
             end
-            
+
             if ~isfield(options,"nouns")
                 obj.nouns = obj.nouns_;
             else % Ensure cell array
