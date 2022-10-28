@@ -5,6 +5,8 @@ Generate memorable names for instances, files, experiments etc. in MATLAB. This 
 ## Installation
 Simply add this repository to your MATLAB path using the IDE `Home>Set Path`. There is no need to include subfolders. Alternatively use the `addpath` function.
 
+Currently the minimum version is set to 2017a to take advantage of tidy argument validation. It may work starting at 2016, but has not been tested so a warning will appear.
+
 ## Usage
 There is only one Class `Haikunator` with one method `haikunate`. 
 

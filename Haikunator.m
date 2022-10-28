@@ -6,9 +6,12 @@ classdef Haikunator < handle
         seed
         adjectives
         nouns
+
+        min_ver = '9.2' % matlab 2017a
     end
     
     properties (Access = private, Constant = true)
+        % Default values stored here
         adjectives_ = {'aged', 'ancient', 'autumn', 'billowing', 'bitter', 'black', 'blue', ...
             'bold','broad', 'broken', 'calm', 'cold', 'cool', 'crimson', 'curly', 'damp', ...
             'dark', 'dawn', 'delicate', 'divine', 'dry', 'empty', 'falling', 'fancy', ...
@@ -36,19 +39,20 @@ classdef Haikunator < handle
         delimiter_ = '-';
         token_chars_ = '0123456789';
         token_length_ = 4;
+        use_token_hex_ = false;
     end
-    
+
     methods
-        function obj = Haikunator(varargin)
+        function obj = Haikunator(options)
             % h = Haikunator()
             % 
             % All inputs are optional. Calling Haikunator() is equivalent 
-            % to Haikunator('seed',randseed()).
+            % to seed_ = rng(); Haikunator('seed',seed_).
             %
             % Optional Inputs
             % ---------------
             % seed       : nonnegative integer, if not entered, defaults to a
-            %              random seed from randseed(), prime numbers \in [31,2^17-1]
+            %              random seed from rng(), prime numbers \in [31,2^17-1]
             % adjectives : cell array of adjectives (also accepts a single string)
             % nouns      : cell array of nouns (also accepts a single string)
             %
@@ -57,46 +61,46 @@ classdef Haikunator < handle
             % h = Haikunator('seed',313)
             % h = Haikunator('adjectives',{'frank','jocular','frazzled'})
             % h = Haikunator('nouns',{'plumbus','olifant'})
-            
-            % Parse inputs
-            ip = inputParser();
-            addParameter(ip,'seed', [], @(x) (isnumeric(x) && (mod(x,1) == 0 || x == 0))); % Check for nonnegative integer
-            addParameter(ip,'adjectives', [], @(x) ischar(x) || iscellstr(x)); %#ok<ISCLSTR>
-            addParameter(ip,'nouns', [], @(x) ischar(x) || iscellstr(x)); %#ok<ISCLSTR>
-            
-            parse(ip, varargin{:});
-            
+
+            arguments
+               options.seed         (1,1) {mustBeNonnegative}
+               options.adjectives   (1,:) {mustBeText}
+               options.nouns        (1,:) {mustBeText}
+            end
+
+            if verLessThan('matlab',obj.min_ver)
+                error(['MATLAB version must be >=' obj.min_ver]);
+            end
+
             % Set hidden properties
-            if isempty(ip.Results.seed)
+            if ~isfield(options,"seed")
                 obj.seed = rng('shuffle');
             else
-                obj.seed = ip.Results.seed;
+                obj.seed = options.seed;
             end
-            
-            if isempty(ip.Results.adjectives)
+
+            if ~isfield(options,"adjectives")
                 obj.adjectives = obj.adjectives_;
-            else
-                % Ensure cell array
-                if ischar(ip.Results.adjectives)
-                    obj.adjectives = {ip.Results.adjectives};
+            else % Ensure cell array
+                if ischar(options.adjectives)
+                    obj.adjectives = {options.adjectives};
                 else
-                    obj.adjectives = ip.Results.adjectives;
+                    obj.adjectives = options.adjectives;
                 end
             end
             
-            if isempty(ip.Results.nouns)
+            if ~isfield(options,"nouns")
                 obj.nouns = obj.nouns_;
-            else
-                % Ensure cell array
-                if ischar(ip.Results.nouns)
-                    obj.nouns = {ip.Results.nouns};
+            else % Ensure cell array
+                if ischar(options.nouns)
+                    obj.nouns = {options.nouns};
                 else
-                    obj.nouns = ip.Results.nouns;
+                    obj.nouns = options.nouns;
                 end
             end
         end
-        
-        function name = haikunate(obj,varargin)
+
+        function name = haikunate(obj,options)
             % name = haikunate('delimiter','-','token_length',4,'token_chars','0123456789','token_hex',false)
             % 
             % All inputs are optional, and use the seed passed (implicitly or explicitly) to 
@@ -104,16 +108,17 @@ classdef Haikunator < handle
             %
             % Optional Inputs
             % ---------------
-            % delimiter    : string to delimit the adjective noun and token
-            %                defaults to '-'.
-            % token_length : integer to specify the length of the token, 
-            %                defaults to 4.
-            % token_hex    : boolean, if true sets token_chars to 
-            %                hexidecimal values '0123456789abcdef', will
-            %                override anything passed to token_chars.
-            %                Defaults to false.
-            % token_chars  : string to serve as pool for token, defaults to
-            %                '0123456789'.
+            % delimiter     : string to delimit the adjective noun and token
+            %                 defaults to '-'.
+            % token_length  : integer to specify the length of the token, 
+            %                 defaults to 4.
+            % token_chars   : string to serve as pool for token, defaults to
+            %                 '0123456789'.
+            % use_token_hex : boolean, if true sets token_chars to 
+            %                 hexidecimal values '0123456789abcdef', will
+            %                 override anything passed to token_chars.
+            %                 Defaults to false (if true will override
+            %                 token_chars input).
             %
             % Examples (with different seeds)
             % -------------------------------
@@ -126,57 +131,37 @@ classdef Haikunator < handle
             % h.haikunate('delimiter','_'); % = 'orange_morning_5786'
             % 
             % % Use hex token
-            % h.haikunate('token_hex',true); % = 'lively-hill-6b04'
+            % h.haikunate('use_token_hex',true); % = 'lively-hill-6b04'
             %
             % % Change token_chars
             % h.haikunate('token_chars','HAIKUNATOR'); % 'lucky-king-UHNU'
             
             % Parse inputs
-            ip = inputParser();
-            addParameter(ip,'delimiter', [], @(x) ischar(x));
-            addParameter(ip,'token_length', [], @(x) (isnumeric(x)  && (mod(x,1) == 0 || x == 0)));
-            addParameter(ip,'token_hex', false, @(x) islogical(x));
-            addParameter(ip,'token_chars', [], @(x) ischar(x));
-            
-            parse(ip, varargin{:});
-            
-            % Set name-type variables
-            if isempty(ip.Results.delimiter)
-                delimiter = obj.delimiter_;
-            else
-                delimiter = ip.Results.delimiter;
+            arguments
+                obj
+
+                options.delimiter       (1,:) {mustBeText} = obj.delimiter_
+                options.token_length    (1,1) {mustBeNonnegative} = obj.token_length_
+                options.token_chars     (1,:) {mustBeText} = obj.token_chars_
+                options.use_token_hex   (1,1) {mustBeNumericOrLogical} = obj.use_token_hex_
             end
-            
-            if isempty(ip.Results.token_length)
-                token_length = obj.token_length_;
-            else
-                token_length = ip.Results.token_length;
-            end
-            
-            if isempty(ip.Results.token_chars)
-                token_chars = obj.token_chars_;
-            else
-                token_chars = ip.Results.token_chars;
-            end
-            
-            if ip.Results.token_hex
-                if ~isempty(ip.Results.token_chars)
-                    warning(['token_chars were passed with token_hex=true.',...
-                        'token_chars will be set to hexidecimal.'])
-                end
+
+            if options.use_token_hex
                 token_chars = '0123456789abcdef';
+            else
+                token_chars = options.token_chars;
             end
-            
+
             % Make name
             adjective = cell2mat(obj.getRandom(obj.adjectives,1));
             noun = cell2mat(obj.getRandom(obj.nouns,1));
-            token = obj.getRandom(token_chars,token_length);
-            
+            token = obj.getRandom(token_chars,options.token_length);
+
             % Account for zero token length
-            if token_length == 0
-                name = [adjective, delimiter, noun];    
+            if options.token_length == 0
+                name = [adjective, options.delimiter, noun];    
             else
-                name = [adjective, delimiter, noun, delimiter, token];
+                name = [adjective, options.delimiter, noun, options.delimiter, token];
             end
         end
     end
@@ -185,7 +170,7 @@ classdef Haikunator < handle
         function elements = getRandom(obj,lst,n_elements)
             % Return a random element or random set, with replacement. Also
             % retains previous rng() values.
-            
+
             % Save current seed
             old_rng = rng();
 
